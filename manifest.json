@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "German Language Requirement Checker",
+  "version": "1.0",
+  "description": "Automatically detects German language requirements in job postings",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://www.linkedin.com/*",
+    "https://www.stepstone.de/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.linkedin.com/jobs/*",
+        "https://www.stepstone.de/stellenangebote--*",
+        "https://www.stepstone.de/jobs--*",
+        "https://www.stepstone.de/jobs/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "badge.css"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "options_page": "settings.html",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 300px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      margin: 0;
+    }
+
+    h2 {
+      margin: 0 0 15px 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    p {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 10px 0;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .button:hover {
+      background-color: #357ae8;
+    }
+
+    .status {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #e7f3ff;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #1976D2;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>🔍 German Language Requirement Checker</h2>
+  <p>This extension automatically checks German language requirements when you open job ads on LinkedIn and Stepstone.
+  </p>
+
+  <p><strong>Badge Colors:</strong></p>
+  <p style="font-size: 13px; margin-left: 10px;">
+    🔴 Red = German Required<br>
+    🟡 Yellow = German Preferred<br>
+    🟢 Green = No German Required<br>
+    ⚪ Gray = Unclear
+  </p>
+
+  <button class="button" id="settingsBtn">Open Settings</button>
+
+  <div class="status" id="status">
+    <strong>Status:</strong> <span id="statusText">Checking...</span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
