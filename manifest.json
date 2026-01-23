@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "German Language Requirement Checker",
-  "version": "1.0",
-  "description": "Automatically detects German language requirements in job postings",
+  "name": "Job Match Analyzer",
+  "version": "2.0",
+  "description": "Analyzes job postings for language requirements, skills match, and interest alignment",
   "permissions": [
     "storage",
     "activeTab"

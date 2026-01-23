@@ -42,3 +42,20 @@
 .lang-checker-badge.loading {
   background-color: #17a2b8;
 }
+
+/* Percentage-based badges for skills and interests */
+/* Red: 0-33% match */
+.lang-checker-badge.match-low {
+  background-color: #dc3545;
+}
+
+/* Yellow: 34-66% match */
+.lang-checker-badge.match-medium {
+  background-color: #ffc107;
+  color: #000;
+}
+
+/* Green: 67-100% match */
+.lang-checker-badge.match-high {
+  background-color: #28a745;
+}

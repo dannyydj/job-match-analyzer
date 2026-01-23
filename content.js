@@ -1,5 +1,5 @@
 // This script runs on LinkedIn and Stepstone job pages
-// It extracts job description, checks cache, and displays language requirement badge
+// It extracts job description, checks cache, and displays job match badges
 
 (function () {
   'use strict';
@@ -41,7 +41,7 @@
 
         // If cached data is less than 30 days old, use it
         if (cachedData.timestamp > thirtyDaysAgo) {
-          displayBadge(cachedData.result);
+          displayBadges(cachedData.result);
           return;
         }
       }
@@ -50,7 +50,11 @@
       scanJob();
     } catch (error) {
       console.error('Error checking cache:', error);
-      displayBadge({ status: 'unclear', level: null });
+      displayBadges({
+        language: { status: 'unclear', level: null },
+        skillsMatch: 0,
+        interestMatch: 0
+      });
     }
   }
 
@@ -60,19 +64,23 @@
     // Extract job description text from the page
     const jobText = extractJobDescription();
 
-    // log job url
-    console.log("scanning job: " + jobUrl);
-    // log job text
-    console.log("scanning text: " + jobText);
+    // Log job url
+    console.log("[Job Match Analyzer] Scanning job:", jobUrl);
+    // Log job text
+    console.log("[Job Match Analyzer] Scanning text:", jobText);
 
     if (!jobText) {
       console.error('Could not extract job description');
-      displayBadge({ status: 'unclear', level: null });
+      displayBadges({
+        language: { status: 'unclear', level: null },
+        skillsMatch: 0,
+        interestMatch: 0
+      });
       return;
     }
 
     // Show a loading badge while waiting for AI response
-    displayBadge({ status: 'loading', level: null });
+    displayBadges({ status: 'loading' });
 
     // Truncate text before sending to prevent message channel size limits
     const truncatedText = jobText.length > 5000 ? jobText.substring(0, 5000) + "..." : jobText;
@@ -87,16 +95,24 @@
       (response) => {
         if (chrome.runtime.lastError) {
           console.error('Runtime error:', chrome.runtime.lastError);
-          displayBadge({ status: 'unclear', level: null });
+          displayBadges({
+            language: { status: 'unclear', level: null },
+            skillsMatch: 0,
+            interestMatch: 0
+          });
           return;
         }
 
         if (response && response.success) {
-          displayBadge(response.result);
+          displayBadges(response.result);
           // Cache the result with jobUrl
           cacheResult(response.result, jobUrl);
         } else {
-          displayBadge({ status: 'unclear', level: null });
+          displayBadges({
+            language: { status: 'unclear', level: null },
+            skillsMatch: 0,
+            interestMatch: 0
+          });
         }
       }
     );
@@ -116,7 +132,6 @@
       // Stepstone job description selectors (covering several versions of their site)
       const descriptionElement = document.querySelector(
         '[data-at="job-ad-content"]'
-        //, [data-testid="job-description"], [data-at="jobad-description"], [data-at="job-description-text"], .js-app-ld-ContentBlock, .listing-content, article
       );
       if (descriptionElement) {
         jobText = descriptionElement.innerText;
@@ -126,44 +141,94 @@
     return jobText.trim();
   }
 
-  function displayBadge(result) {
-    // Remove existing badge if any
-    const existingBadge = document.getElementById('lang-checker-badge');
-    if (existingBadge) {
-      existingBadge.remove();
+  function displayBadges(result) {
+    // Remove existing badges if any
+    const existingBadges = document.querySelectorAll('.lang-checker-badge');
+    existingBadges.forEach(badge => badge.remove());
+
+    // Handle loading state - show single badge
+    if (result.status === 'loading') {
+      const badge = document.createElement('div');
+      badge.className = 'lang-checker-badge loading';
+      badge.textContent = 'Analyzing job...';
+      document.body.appendChild(badge);
+      return;
     }
 
-    // Create badge element
+    // Display badges: up to 3 badges stacked vertically
+    const badges = [];
+
+    // 1. Language Badge (always shown)
+    const languageBadge = createLanguageBadge(result.language);
+    badges.push(languageBadge);
+
+    // 2. Skills Match Badge (only if user has profile - skillsMatch > 0 or explicitly set)
+    if (result.skillsMatch !== undefined && result.skillsMatch >= 0) {
+      const skillsBadge = createPercentageBadge('💼 Skills Match', result.skillsMatch);
+      if (skillsBadge) badges.push(skillsBadge);
+    }
+
+    // 3. Interest Match Badge (only if user has profile)
+    if (result.interestMatch !== undefined && result.interestMatch >= 0) {
+      const interestBadge = createPercentageBadge('❤️ Interest Match', result.interestMatch);
+      if (interestBadge) badges.push(interestBadge);
+    }
+
+    // Position badges vertically with 10px gap
+    badges.forEach((badge, index) => {
+      badge.style.bottom = `${20 + (index * 70)}px`; // 70px spacing = 60px badge height + 10px gap
+      document.body.appendChild(badge);
+    });
+  }
+
+  function createLanguageBadge(language) {
     const badge = document.createElement('div');
-    badge.id = 'lang-checker-badge';
     badge.className = 'lang-checker-badge';
 
-    // Set badge content and style based on result
     let badgeClass = '';
     let badgeText = '';
 
-    if (result.status === 'loading') {
-      badgeClass = 'loading';
-      badgeText = 'Scanning...';
-    } else if (result.status === 'required') {
+    if (language.status === 'required') {
       badgeClass = 'required';
-      badgeText = result.level ? `German Required (${result.level})` : 'German Required';
-    } else if (result.status === 'preferred') {
+      badgeText = language.level ? `🔴 German Required (${language.level})` : '🔴 German Required';
+    } else if (language.status === 'preferred') {
       badgeClass = 'preferred';
-      badgeText = result.level ? `German Preferred (${result.level})` : 'German Preferred';
-    } else if (result.status === 'not_required') {
+      badgeText = language.level ? `🟡 German Preferred (${language.level})` : '🟡 German Preferred';
+    } else if (language.status === 'not_required') {
       badgeClass = 'not-required';
-      badgeText = 'No German Required';
+      badgeText = '🟢 No German Required';
     } else {
       badgeClass = 'unclear';
-      badgeText = 'Unclear';
+      badgeText = '⚪ Unclear';
     }
 
     badge.className += ' ' + badgeClass;
     badge.textContent = badgeText;
+    return badge;
+  }
 
-    // Add badge to page
-    document.body.appendChild(badge);
+  function createPercentageBadge(label, percentage) {
+    // Don't show badge if percentage is 0 (user hasn't filled profile)
+    if (percentage === 0) {
+      return null;
+    }
+
+    const badge = document.createElement('div');
+    badge.className = 'lang-checker-badge';
+
+    // Determine color class based on percentage
+    let colorClass = '';
+    if (percentage <= 33) {
+      colorClass = 'match-low';  // Red
+    } else if (percentage <= 66) {
+      colorClass = 'match-medium';  // Yellow
+    } else {
+      colorClass = 'match-high';  // Green
+    }
+
+    badge.className += ' ' + colorClass;
+    badge.textContent = `${label}: ${percentage}%`;
+    return badge;
   }
 
   async function cacheResult(result, jobUrl) {
