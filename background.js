@@ -128,8 +128,8 @@ INSTRUCTIONS:
     "status": "required" | "preferred" | "not_required",
     "level": "B2" | "C1" | "fluent" | null
   },
-  "skillsMatch": 75,
-  "interestMatch": 80
+  "skillsMatch": 0-100,
+  "interestMatch": 0-100
 }
 
 IMPORTANT: 
