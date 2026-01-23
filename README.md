@@ -98,5 +98,3 @@ All analysis is powered by Google's Gemini AI for accurate semantic understandin
 ---
 
 **Find the right job, faster!** 🎯
-
-*Formerly "German Language Requirement Checker" - now evolved into a comprehensive job matching tool.*

@@ -41,6 +41,7 @@
 
         // If cached data is less than 30 days old, use it
         if (cachedData.timestamp > thirtyDaysAgo) {
+          console.log("[Job Match Analyzer] Using cached Gemini analysis result:", cachedData.result);
           displayBadges(cachedData.result);
           return;
         }
@@ -104,6 +105,7 @@
         }
 
         if (response && response.success) {
+          console.log("[Job Match Analyzer] Received Gemini analysis result:", response.result);
           displayBadges(response.result);
           // Cache the result with jobUrl
           cacheResult(response.result, jobUrl);
