@@ -40,17 +40,17 @@ To use this extension, you need a Gemini API key. Follow these steps:
 
 To get skills and interest matching, fill in your profile in the Settings page:
 
-### Skills & Experience (200 characters max)
+### Skills & Experience (500 characters max)
 Add your key skills, technologies, and experience. Examples:
 - `Python 5 years, React, Team leadership, Agile, AWS, SQL, Docker`
 - `Product management, Data analysis, A/B testing, User research`
 
-### Interests (200 characters max)
+### Interests (500 characters max)
 Add your career interests, industry preferences, company culture, and work style. Examples:
 - `FinTech, startups, remote work, building developer tools, small teams`
 - `HealthTech, AI/ML, large companies, work-life balance`
 
-**Tip:** Both fields have a 200-character limit with live counters to help you stay concise.
+**Tip:** Both fields have a 500-character limit with live counters to help you stay concise.
 
 ## 🎨 Badge Colors & Meanings
 
@@ -62,12 +62,12 @@ The extension displays up to **3 color-coded badges** on each job posting:
 - 🟢 **Green:** **No German required** (English only)
 - ⚪ **Gray:** Language requirements are **unclear**
 
-### 2. Skills Match Badge (shown when you have a profile)
+### 2. Skills Match Badge
 - 🔴 **Red (0-33%):** Low match - you're missing many required skills
 - 🟡 **Yellow (34-66%):** Medium match - you have some skills but gaps exist
 - 🟢 **Green (67-100%):** High match - strong alignment with job requirements
 
-### 3. Interest Match Badge (shown when you have a profile)
+### 3. Interest Match Badge
 - 🔴 **Red (0-33%):** Low alignment with your interests
 - 🟡 **Yellow (34-66%):** Moderate fit with your interests
 - 🟢 **Green (67-100%):** Great match - aligns well with your interests

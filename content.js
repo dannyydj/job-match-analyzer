@@ -210,11 +210,6 @@
   }
 
   function createPercentageBadge(label, percentage) {
-    // Don't show badge if percentage is 0 (user hasn't filled profile)
-    if (percentage === 0) {
-      return null;
-    }
-
     const badge = document.createElement('div');
     badge.className = 'lang-checker-badge';
 
