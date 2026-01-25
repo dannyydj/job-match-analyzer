@@ -138,7 +138,16 @@
       if (descriptionElement) {
         jobText = descriptionElement.innerText;
       }
+    } else if (window.location.hostname.includes('indeed.com')) {
+      // Indeed job description selectors
+      const descriptionElement = document.querySelector(
+        '#jobDescriptionText, .jobsearch-jobDescriptionText, .job-description'
+      );
+      if (descriptionElement) {
+        jobText = descriptionElement.innerText;
+      }
     }
+
 
     return jobText.trim();
   }

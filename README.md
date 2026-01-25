@@ -10,8 +10,10 @@ Automatically analyzes job postings to help you find your perfect match! This Ch
 This Chrome extension analyzes job postings on popular platforms to provide comprehensive job matching. It currently supports:
 - **LinkedIn Jobs**
 - **StepStone.de**
+- **Indeed.com** (US & Germany)
 
 The extension uses the Gemini AI API to accurately parse job descriptions and provides quick visual indicators via color-coded badges.
+
 
 ## 📦 Installation
 

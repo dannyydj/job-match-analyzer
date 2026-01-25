@@ -10,6 +10,8 @@
   "host_permissions": [
     "https://www.linkedin.com/*",
     "https://www.stepstone.de/*",
+    "https://de.indeed.com/*",
+    "https://www.indeed.com/*",
     "https://generativelanguage.googleapis.com/*"
   ],
   "background": {
@@ -21,7 +23,11 @@
         "https://www.linkedin.com/jobs/*",
         "https://www.stepstone.de/stellenangebote--*",
         "https://www.stepstone.de/jobs--*",
-        "https://www.stepstone.de/jobs/*"
+        "https://www.stepstone.de/jobs/*",
+        "https://de.indeed.com/viewjob*",
+        "https://de.indeed.com/jobs*",
+        "https://www.indeed.com/viewjob*",
+        "https://www.indeed.com/jobs*"
       ],
       "js": [
         "content.js"
