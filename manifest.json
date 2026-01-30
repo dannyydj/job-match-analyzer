@@ -24,10 +24,8 @@
         "https://www.stepstone.de/stellenangebote--*",
         "https://www.stepstone.de/jobs--*",
         "https://www.stepstone.de/jobs/*",
-        "https://de.indeed.com/viewjob*",
-        "https://de.indeed.com/jobs*",
-        "https://www.indeed.com/viewjob*",
-        "https://www.indeed.com/jobs*"
+        "https://de.indeed.com/*",
+        "https://www.indeed.com/*"
       ],
       "js": [
         "content.js"

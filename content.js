@@ -4,21 +4,38 @@
 (function () {
   'use strict';
 
+  console.log("checkCacheAndScan-1");
+
+
   // Track current URL to detect changes
   let currentUrl = window.location.href;
 
   // Initial scan when page loads
   checkCacheAndScan();
 
-  // Watch for URL changes on click (for LinkedIn's partial page reload)
-  document.addEventListener('click', () => {
-    setTimeout(() => {
-      const newUrl = window.location.href;
-      if (newUrl !== currentUrl) {
-        currentUrl = newUrl;
-        checkCacheAndScan();
-      }
-    }, 500); // Wait 500ms for URL to update after click
+  // Robust URL change detection for SPAs (Indeed, LinkedIn)
+  // We check periodically and also on clicks/popstate
+  const urlWatcher = setInterval(() => {
+    const newUrl = window.location.href;
+    if (newUrl !== currentUrl) {
+      console.log("[Job Match Analyzer] URL change detected:", newUrl);
+      currentUrl = newUrl;
+      checkCacheAndScan();
+    }
+  }, 1000);
+
+  // Still watch for clicks and popstate for faster response
+  ['click', 'popstate', 'keyup'].forEach(eventName => {
+    document.addEventListener(eventName, () => {
+      setTimeout(() => {
+        const newUrl = window.location.href;
+        if (newUrl !== currentUrl) {
+          console.log(`[Job Match Analyzer] URL change detected via ${eventName}:`, newUrl);
+          currentUrl = newUrl;
+          checkCacheAndScan();
+        }
+      }, 500);
+    });
   });
 
   async function checkCacheAndScan() {
@@ -62,13 +79,16 @@
   async function scanJob() {
     const jobUrl = currentUrl;
 
+    // Small delay to let the SPA render the new job details
+    console.log("[Job Match Analyzer] Waiting for job details to load...");
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
     // Extract job description text from the page
     const jobText = extractJobDescription();
 
-    // Log job url
+    // Log extraction results
     console.log("[Job Match Analyzer] Scanning job:", jobUrl);
-    // Log job text
-    console.log("[Job Match Analyzer] Scanning text:", jobText);
+    console.log("[Job Match Analyzer] Extracted text length:", jobText ? jobText.length : 0);
 
     if (!jobText) {
       console.error('Could not extract job description');
@@ -125,10 +145,36 @@
     let jobText = '';
 
     if (window.location.hostname.includes('linkedin.com')) {
-      // LinkedIn job description selector
-      const descriptionElement = document.querySelector('.jobs-description__content, .jobs-box__html-content, .description__text');
-      if (descriptionElement) {
-        jobText = descriptionElement.innerText;
+      // Find all potential LinkedIn job description containers
+      const selectors = [
+        '#job-details',
+        '.jobs-description__content',
+        '.jobs-box__html-content',
+        '.description__text',
+        '.jobs-description__container',
+        '.jobs-description__container--condensed',
+        '.show-more-less-html__markup',
+        '.jobs-description-content__text'
+      ];
+
+      const elements = document.querySelectorAll(selectors.join(', '));
+      let bestMatch = null;
+      let maxLen = 0;
+
+      // Iterate through all matches to find the one with the most content
+      elements.forEach(el => {
+        // Use innerText as it's cleaner, fallback to textContent
+        const text = (el.innerText || el.textContent || '').trim();
+        if (text.length > maxLen) {
+          maxLen = text.length;
+          bestMatch = el;
+        }
+      });
+
+      if (bestMatch) {
+        // Update the log to show what we found
+        console.log(`[Job Match Analyzer] Found best match with length ${maxLen}`);
+        jobText = bestMatch.innerText || bestMatch.textContent || '';
       }
     } else if (window.location.hostname.includes('stepstone.')) {
       // Stepstone job description selectors (covering several versions of their site)
@@ -139,6 +185,7 @@
         jobText = descriptionElement.innerText;
       }
     } else if (window.location.hostname.includes('indeed.com')) {
+
       // Indeed job description selectors
       const descriptionElement = document.querySelector(
         '#jobDescriptionText, .jobsearch-jobDescriptionText, .job-description'
@@ -148,7 +195,7 @@
       }
     }
 
-
+    console.log(jobText);
     return jobText.trim();
   }
 
