@@ -72,7 +72,7 @@ async function analyzeJobWithGemini(jobText, jobUrl) {
     if (!apiKey) {
       console.error('No API key found');
       return {
-        language: { status: 'unclear', level: null },
+        languages: [],
         skillsMatch: 0,
         interestMatch: 0
       };
@@ -105,11 +105,19 @@ Interests: ${userInterests || 'Not provided'}
 
 INSTRUCTIONS:
 1. LANGUAGE REQUIREMENTS:
-   - Determine if German language skills are:
-     * REQUIRED (must have, mandatory, essential)
-     * PREFERRED (nice to have, desirable, advantage)
-     * NOT_REQUIRED (not mentioned, or only English required)
-   - Identify proficiency level if mentioned (A1, A2, B1, B2, C1, C2, "fluent", "native", "basic", "business level")
+   - Identify ALL non-English language requirements mentioned in the job posting
+   - For each language, determine:
+     * REQUIRED: explicitly stated as mandatory, must-have, required, essential
+     * PREFERRED: nice-to-have, desirable, advantage, plus, beneficial
+   - Extract proficiency level using CEFR format (A1, A2, B1, B2, C1, C2) if mentioned
+     * Convert common terms: "fluent" → C1, "native" → C2, "conversational" → B1, "basic" → A2
+   - EXCLUDE English from the results (treat as default)
+   - IGNORE mentions of languages in these contexts:
+     * "Experience with Spanish-speaking markets" (market context, not language requirement)
+     * Programming languages (JavaScript, Python, etc.)
+     * "Multilingual environment" without specific languages mentioned
+   - If only English is required/mentioned, return empty array []
+   - If no language requirements are clear, return empty array []
 
 2. SKILLS & EXPERIENCE MATCH:
    - Compare the candidate's skills and experience with the job requirements
@@ -124,15 +132,17 @@ INSTRUCTIONS:
 
 4. RESPOND with ONLY this JSON (no markdown, no explanation):
 {
-  "language": {
-    "status": "required" | "preferred" | "not_required",
-    "level": "B2" | "C1" | "fluent" | null
-  },
+  "languages": [
+    {"name": "Spanish", "status": "required", "level": "B2"},
+    {"name": "French", "status": "preferred", "level": null}
+  ],
   "skillsMatch": 0-100,
   "interestMatch": 0-100
 }
 
 IMPORTANT: 
+- languages must be an array (can be empty [])
+- Each language object must have: name (string), status ("required" or "preferred"), level (CEFR string or null)
 - Percentages must be 0-100
 - If profile section is empty, set that match to 0
 - Be realistic with matching - require actual overlap, not just similarity`;
@@ -160,7 +170,7 @@ IMPORTANT:
         ],
         generationConfig: {
           temperature: 0.1,
-          maxOutputTokens: 150,
+          maxOutputTokens: 250,
         }
       })
     });
@@ -173,7 +183,7 @@ IMPORTANT:
         console.error('[Job Match Analyzer] Gemini API error (non-JSON):', response.status, response.statusText);
       }
       return {
-        language: { status: 'unclear', level: null },
+        languages: [],
         skillsMatch: 0,
         interestMatch: 0
       };
@@ -211,27 +221,30 @@ IMPORTANT:
 
         // Validate and apply defaults
         const validatedResult = {
-          language: {
-            status: parsedResult.language?.status || 'unclear',
-            level: parsedResult.language?.level || null
-          },
+          languages: Array.isArray(parsedResult.languages) ? parsedResult.languages : [],
           skillsMatch: typeof parsedResult.skillsMatch === 'number' ? parsedResult.skillsMatch : 0,
           interestMatch: typeof parsedResult.interestMatch === 'number' ? parsedResult.interestMatch : 0
         };
 
-        console.log('[Job Match Analyzer] Validated result:', validatedResult);
+        // Validate each language object in the array
+        validatedResult.languages = validatedResult.languages.filter(lang => {
+          return lang &&
+            typeof lang.name === 'string' &&
+            ['required', 'preferred'].includes(lang.status);
+        }).map(lang => ({
+          name: lang.name,
+          status: lang.status,
+          level: lang.level || null
+        }));
 
-        // Final validation - ensure language status is valid
-        if (!['required', 'preferred', 'not_required'].includes(validatedResult.language.status)) {
-          validatedResult.language.status = 'unclear';
-        }
+        console.log('[Job Match Analyzer] Validated result:', validatedResult);
 
         return validatedResult;
 
       } catch (parseError) {
         console.error('[Job Match Analyzer] Error parsing Gemini response:', parseError);
         return {
-          language: { status: 'unclear', level: null },
+          languages: [],
           skillsMatch: 0,
           interestMatch: 0
         };
@@ -240,7 +253,7 @@ IMPORTANT:
 
     // If we couldn't parse a valid response, return defaults
     return {
-      language: { status: 'unclear', level: null },
+      languages: [],
       skillsMatch: 0,
       interestMatch: 0
     };
@@ -248,7 +261,7 @@ IMPORTANT:
   } catch (error) {
     console.error('[Job Match Analyzer] Error calling Gemini API:', error);
     return {
-      language: { status: 'unclear', level: null },
+      languages: [],
       skillsMatch: 0,
       interestMatch: 0
     };

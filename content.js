@@ -69,7 +69,7 @@
     } catch (error) {
       console.error('Error checking cache:', error);
       displayBadges({
-        language: { status: 'unclear', level: null },
+        languages: [],
         skillsMatch: 0,
         interestMatch: 0
       });
@@ -93,7 +93,7 @@
     if (!jobText) {
       console.error('Could not extract job description');
       displayBadges({
-        language: { status: 'unclear', level: null },
+        languages: [],
         skillsMatch: 0,
         interestMatch: 0
       });
@@ -117,7 +117,7 @@
         if (chrome.runtime.lastError) {
           console.error('Runtime error:', chrome.runtime.lastError);
           displayBadges({
-            language: { status: 'unclear', level: null },
+            languages: [],
             skillsMatch: 0,
             interestMatch: 0
           });
@@ -131,7 +131,7 @@
           cacheResult(response.result, jobUrl);
         } else {
           displayBadges({
-            language: { status: 'unclear', level: null },
+            languages: [],
             skillsMatch: 0,
             interestMatch: 0
           });
@@ -193,6 +193,13 @@
       if (descriptionElement) {
         jobText = descriptionElement.innerText;
       }
+    } else if (window.location.hostname.includes('smartrecruiters.com')) {
+
+      // SmartRecruiters job description selector
+      const descriptionElement = document.querySelector('.job-sections');
+      if (descriptionElement) {
+        jobText = descriptionElement.innerText;
+      }
     }
 
     console.log(jobText);
@@ -217,7 +224,7 @@
     const badges = [];
 
     // 1. Language Badge (always shown)
-    const languageBadge = createLanguageBadge(result.language);
+    const languageBadge = createLanguageBadge(result.languages);
     badges.push(languageBadge);
 
     // 2. Skills Match Badge (only if user has profile - skillsMatch > 0 or explicitly set)
@@ -239,25 +246,49 @@
     });
   }
 
-  function createLanguageBadge(language) {
+  function createLanguageBadge(languages) {
     const badge = document.createElement('div');
     badge.className = 'lang-checker-badge';
+
+    // Language abbreviation mapping
+    const langAbbrev = {
+      'German': 'DE', 'Spanish': 'ES', 'French': 'FR', 'Italian': 'IT',
+      'Portuguese': 'PT', 'Dutch': 'NL', 'Polish': 'PL', 'Russian': 'RU',
+      'Chinese': 'ZH', 'Japanese': 'JA', 'Korean': 'KO', 'Arabic': 'AR'
+    };
 
     let badgeClass = '';
     let badgeText = '';
 
-    if (language.status === 'required') {
-      badgeClass = 'required';
-      badgeText = language.level ? `🔴 German Required (${language.level})` : '🔴 German Required';
-    } else if (language.status === 'preferred') {
-      badgeClass = 'preferred';
-      badgeText = language.level ? `🟡 German Preferred (${language.level})` : '🟡 German Preferred';
-    } else if (language.status === 'not_required') {
+    // Handle empty array (no non-English language requirements)
+    if (!languages || languages.length === 0) {
       badgeClass = 'not-required';
-      badgeText = '🟢 No German Required';
-    } else {
-      badgeClass = 'unclear';
-      badgeText = '⚪ Unclear';
+      badgeText = '🟢 No Language Requirements';
+    }
+    // Handle single language
+    else if (languages.length === 1) {
+      const lang = languages[0];
+      const emoji = lang.status === 'required' ? '🔴' : '🟡';
+      const statusText = lang.status === 'required' ? 'Required' : 'Preferred';
+      badgeClass = lang.status === 'required' ? 'required' : 'preferred';
+      badgeText = lang.level
+        ? `${emoji} ${lang.name} ${statusText} (${lang.level})`
+        : `${emoji} ${lang.name} ${statusText}`;
+    }
+    // Handle multiple languages (use abbreviations)
+    else {
+      // Determine color: red if any required, yellow if all preferred
+      const hasRequired = languages.some(lang => lang.status === 'required');
+      badgeClass = hasRequired ? 'required' : 'preferred';
+      const emoji = hasRequired ? '🔴' : '🟡';
+
+      // Build abbreviated text
+      const langTexts = languages.map(lang => {
+        const abbrev = langAbbrev[lang.name] || lang.name.substring(0, 2).toUpperCase();
+        return lang.level ? `${abbrev} (${lang.level})` : abbrev;
+      });
+
+      badgeText = `${emoji} ${langTexts.join(', ')}`;
     }
 
     badge.className += ' ' + badgeClass;

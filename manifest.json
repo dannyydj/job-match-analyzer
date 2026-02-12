@@ -12,6 +12,7 @@
     "https://www.stepstone.de/*",
     "https://de.indeed.com/*",
     "https://www.indeed.com/*",
+    "https://jobs.smartrecruiters.com/*",
     "https://generativelanguage.googleapis.com/*"
   ],
   "background": {
@@ -25,7 +26,8 @@
         "https://www.stepstone.de/jobs--*",
         "https://www.stepstone.de/jobs/*",
         "https://de.indeed.com/*",
-        "https://www.indeed.com/*"
+        "https://www.indeed.com/*",
+        "https://jobs.smartrecruiters.com/*"
       ],
       "js": [
         "content.js"
