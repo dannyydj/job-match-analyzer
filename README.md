@@ -1,7 +1,7 @@
 # Job Match Analyzer
 
 Automatically analyzes job postings to help you find your perfect match! This Chrome extension checks:
-- **German language requirements** (required, preferred, or not needed)
+- **Language requirements** (detects any non-English language like Spanish, German, French, etc.)
 - **Skills & experience match** (% compatibility with your profile)
 - **Interest alignment** (% match with your career interests)
 
@@ -11,6 +11,7 @@ This Chrome extension analyzes job postings on popular platforms to provide comp
 - **LinkedIn Jobs**
 - **StepStone.de**
 - **Indeed.com** (US & Germany)
+- **SmartRecruiters** (jobs.smartrecruiters.com)
 
 The extension uses the Gemini AI API to accurately parse job descriptions and provides quick visual indicators via color-coded badges.
 
@@ -59,10 +60,11 @@ Add your career interests, industry preferences, company culture, and work style
 The extension displays up to **3 color-coded badges** on each job posting:
 
 ### 1. Language Badge (always shown)
-- 🔴 **Red:** German language is **required**
-- 🟡 **Yellow:** German language is **preferred**
-- 🟢 **Green:** **No German required** (English only)
-- ⚪ **Gray:** Language requirements are **unclear**
+- 🔴 **Red:** Non-English language is **required** (e.g., "🔴 Spanish Required (B2)" or "🔴 DE (C1), FR (B2)")
+- 🟡 **Yellow:** Non-English language is **preferred** (e.g., "🟡 French Preferred" or "🟡 ES, IT")
+- 🟢 **Green:** **No language requirements** (English only or no specific language mentioned)
+
+**Note:** The badge shows full language names for single languages and abbreviations for multiple languages (DE=German, ES=Spanish, FR=French, IT=Italian, etc.)
 
 ### 2. Skills Match Badge
 - 🔴 **Red (0-33%):** Low match - you're missing many required skills
@@ -77,7 +79,7 @@ The extension displays up to **3 color-coded badges** on each job posting:
 ## 📊 How Matching Works
 
 The extension analyzes:
-- **Language:** Detects German language requirements and proficiency levels
+- **Language:** Detects any non-English language requirements (Spanish, German, French, etc.) with proficiency levels (CEFR: A1-C2)
 - **Skills:** Compares your skills with job requirements
 - **Interests:** Matches your interests against industry, company size, technologies, work style, and company values mentioned in the job description
 
@@ -89,7 +91,14 @@ All analysis is powered by Google's Gemini AI for accurate semantic understandin
 - Cache is **automatically cleared** when you update your profile
 - You can manually clear cache anytime in Settings
 
-## 🆕 What's New in v2.0
+## 🆕 What's New in v2.1
+
+- ✅ **Generic language detection:** Detects any language requirement (Spanish, French, German, etc.), not just German
+- ✅ **SmartRecruiters support:** Now works on jobs.smartrecruiters.com
+- ✅ **Multi-language display:** Smart abbreviations when multiple languages are detected
+- ✅ **CEFR level conversion:** Converts "fluent", "native", "conversational" to standard CEFR levels
+
+## Previous Updates (v2.0)
 
 - ✅ **Skills matching:** See how well your skills match the job
 - ✅ **Interest alignment:** Find jobs that match your career interests
